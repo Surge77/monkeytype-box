@@ -1,0 +1,29 @@
+# .github/workflows/monkeytype-box.yml
+name: Monkeytype Box → Update Gist
+
+on:
+  workflow_dispatch:            # allow manual run
+  schedule:
+    - cron: "0 */12 * * *"      # every 12 hours (UTC)
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read            # action reads the repo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Swift
+        uses: swift-actions/setup-swift@v2
+
+      - name: Build & Run
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}                 # PAT with "gist" scope
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}             # the Gist ID (hex only)
+          MONKEYTYPE_APE_KEY: ${{ secrets.MONKEYTYPE_APE_KEY }}
+        run: |
+          swift --version
+          swift build -c release
+          swift run
